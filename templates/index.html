@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Job Trends Explorer - LinkedIn Jobs India</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-briefcase"></i> AI Job Trends Explorer
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/search">Search Jobs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/recommendations">AI Recommendations</a>
+                    </li>
+                    <li class="nav-item">
+                        <span class="nav-link text-white"><i class="fas fa-user"></i> {{ username }}</span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container mt-3">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold mb-4">Discover Your Dream Job with AI</h1>
+                    <p class="lead mb-4">
+                        Explore trending job opportunities across India with our AI-powered insights and recommendations.
+                        Analyze thousands of LinkedIn job postings in real-time.
+                    </p>
+                    <div class="d-grid gap-2 d-md-flex">
+                        <a href="/search" class="btn btn-primary btn-lg px-4">
+                            <i class="fas fa-search"></i> Search Jobs
+                        </a>
+                        <a href="/dashboard" class="btn btn-outline-primary btn-lg px-4">
+                            <i class="fas fa-chart-line"></i> View Analytics
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <img src="https://img.freepik.com/free-vector/job-search-concept-illustration_114360-1718.jpg" 
+                         alt="Job Search" class="img-fluid rounded">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section py-5">
+        <div class="container">
+            <h2 class="text-center mb-5">Key Features</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="feature-card text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-chart-bar fa-3x text-primary"></i>
+                        </div>
+                        <h4>Data Analytics</h4>
+                        <p>Comprehensive analysis of job trends, top companies, locations, and skills in demand.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-robot fa-3x text-success"></i>
+                        </div>
+                        <h4>AI Recommendations</h4>
+                        <p>Smart job matching using TF-IDF and cosine similarity algorithms for personalized results.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-search fa-3x text-info"></i>
+                        </div>
+                        <h4>Advanced Search</h4>
+                        <p>Filter jobs by location, work type, and keywords to find your perfect match.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section py-5 bg-light">
+        <div class="container">
+            <div class="row text-center" id="stats-container">
+                <div class="col-md-3">
+                    <div class="stat-card p-4">
+                        <h2 class="stat-number" id="total-jobs">-</h2>
+                        <p class="stat-label">Total Jobs</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card p-4">
+                        <h2 class="stat-number" id="total-companies">-</h2>
+                        <p class="stat-label">Companies</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card p-4">
+                        <h2 class="stat-number" id="total-locations">-</h2>
+                        <p class="stat-label">Locations</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card p-4">
+                        <h2 class="stat-number" id="remote-jobs">-</h2>
+                        <p class="stat-label">Remote Jobs</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-0">&copy; 2025 AI Job Trends Explorer | Data Analysis & Visualization Project</p>
+            <p class="mb-0"><small>Powered by Flask, TF-IDF, and Plotly</small></p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        // Load stats on page load
+        fetch('/api/stats')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('total-jobs').textContent = data.total_jobs.toLocaleString();
+                document.getElementById('total-companies').textContent = data.total_companies.toLocaleString();
+                document.getElementById('total-locations').textContent = data.total_locations.toLocaleString();
+                document.getElementById('remote-jobs').textContent = (data.work_types.remote || 0).toLocaleString();
+            })
+            .catch(error => console.error('Error loading stats:', error));
+    </script>
+</body>
+</html>
