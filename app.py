@@ -54,7 +54,14 @@ def initialize_app():
     
     try:
         # Get the correct path to the CSV file
-        csv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'cleaned_linkedin_jobs.csv')
+        csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cleaned_linkedin_jobs.csv')
+        
+        # Check if CSV exists
+        if not os.path.exists(csv_path):
+            print(f"Warning: CSV file not found at {csv_path}")
+            raise FileNotFoundError(f"Dataset file not found: {csv_path}")
+        
+        print(f"Using dataset: {csv_path}")
         
         # Initialize visualizer
         visualizer = JobVisualizer(csv_path=csv_path)
@@ -74,6 +81,8 @@ def initialize_app():
         
     except Exception as e:
         print(f"❌ Error initializing app: {e}")
+        import traceback
+        traceback.print_exc()
         raise
 
 @app.route('/')
@@ -216,7 +225,7 @@ def get_top_skills():
 def get_filters():
     """API endpoint for filter options"""
     try:
-        csv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'cleaned_linkedin_jobs.csv')
+        csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cleaned_linkedin_jobs.csv')
         df = pd.read_csv(csv_path)
         
         # Get unique locations (top 50)

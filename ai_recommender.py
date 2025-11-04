@@ -21,30 +21,47 @@ warnings.filterwarnings('ignore')
 try:
     nltk.data.find('tokenizers/punkt')
 except (LookupError, OSError):
-    nltk.download('punkt', quiet=True)
+    try:
+        nltk.download('punkt', quiet=True)
+    except Exception as e:
+        print(f"Warning: Could not download punkt: {e}")
 
 try:
     nltk.data.find('tokenizers/punkt_tab')
 except (LookupError, OSError):
     try:
         nltk.download('punkt_tab', quiet=True)
-    except:
-        pass  # punkt_tab may not be needed for older NLTK versions
+    except Exception as e:
+        pass  # punkt_tab may not be available in all NLTK versions
     
 try:
     nltk.data.find('corpora/stopwords')
 except (LookupError, OSError):
-    nltk.download('stopwords', quiet=True)
+    try:
+        nltk.download('stopwords', quiet=True)
+    except Exception as e:
+        print(f"Warning: Could not download stopwords: {e}")
 
 class JobRecommender:
-    def __init__(self, csv_path='../cleaned_linkedin_jobs.csv'):
+    def __init__(self, csv_path=None):
         """Initialize recommender with dataset"""
         print("🤖 Initializing AI Job Recommender...")
+        
+        # Use absolute path if not provided
+        if csv_path is None:
+            csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cleaned_linkedin_jobs.csv')
+        
         self.df = pd.read_csv(csv_path)
         self.df = self.df.head(5000)  # Limit for performance
         self.vectorizer = None
         self.tfidf_matrix = None
-        self.stop_words = set(stopwords.words('english'))
+        
+        # Handle stopwords with fallback
+        try:
+            self.stop_words = set(stopwords.words('english'))
+        except Exception as e:
+            print(f"Warning: Could not load stopwords, using empty set: {e}")
+            self.stop_words = set()
         
         print(f"✓ Loaded {len(self.df)} jobs for recommendation engine")
         

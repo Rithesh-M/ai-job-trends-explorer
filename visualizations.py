@@ -10,8 +10,12 @@ from plotly.subplots import make_subplots
 import json
 
 class JobVisualizer:
-    def __init__(self, csv_path='../cleaned_linkedin_jobs.csv'):
+    def __init__(self, csv_path=None):
         """Initialize with dataset"""
+        # Use absolute path if not provided
+        if csv_path is None:
+            csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cleaned_linkedin_jobs.csv')
+        
         self.df = pd.read_csv(csv_path)
         print(f"📊 Loaded {len(self.df)} jobs for visualization")
     
