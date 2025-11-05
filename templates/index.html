@@ -167,12 +167,41 @@
         fetch('/api/stats')
             .then(response => response.json())
             .then(data => {
-                document.getElementById('total-jobs').textContent = data.total_jobs.toLocaleString();
-                document.getElementById('total-companies').textContent = data.total_companies.toLocaleString();
-                document.getElementById('total-locations').textContent = data.total_locations.toLocaleString();
-                document.getElementById('remote-jobs').textContent = (data.work_types.remote || 0).toLocaleString();
+                console.log('Stats data:', data);
+                
+                // Display total jobs
+                if (data.total_jobs) {
+                    document.getElementById('total-jobs').textContent = data.total_jobs.toLocaleString();
+                }
+                
+                // Display total companies
+                if (data.total_companies) {
+                    document.getElementById('total-companies').textContent = data.total_companies.toLocaleString();
+                }
+                
+                // Display total locations
+                if (data.total_locations) {
+                    document.getElementById('total-locations').textContent = data.total_locations.toLocaleString();
+                }
+                
+                // Display remote jobs - check all possible keys
+                let remoteCount = 0;
+                if (data.work_types) {
+                    // Try different possible keys for remote jobs
+                    remoteCount = data.work_types['remote'] || 
+                                  data.work_types['Remote'] || 
+                                  data.work_types['REMOTE'] || 0;
+                }
+                document.getElementById('remote-jobs').textContent = remoteCount.toLocaleString();
             })
-            .catch(error => console.error('Error loading stats:', error));
+            .catch(error => {
+                console.error('Error loading stats:', error);
+                // Show 0 instead of dash on error
+                document.getElementById('total-jobs').textContent = '0';
+                document.getElementById('total-companies').textContent = '0';
+                document.getElementById('total-locations').textContent = '0';
+                document.getElementById('remote-jobs').textContent = '0';
+            });
     </script>
 </body>
 </html>

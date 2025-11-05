@@ -8,6 +8,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import json
+import os
 
 class JobVisualizer:
     def __init__(self, csv_path=None):
@@ -158,16 +159,57 @@ class JobVisualizer:
     
     def create_dashboard_summary(self):
         """Create summary statistics for dashboard"""
-        summary = {
-            'total_jobs': int(len(self.df)),
-            'total_companies': int(self.df['company_name'].nunique()),
-            'total_locations': int(self.df['location'].nunique()),
-            'avg_applications': float(self.df['no_of_application'].mean()),
-            'remote_jobs': int(len(self.df[self.df['work_type'] == 'remote'])),
-            'recent_jobs_24h': int(len(self.df[self.df['posted_hours_ago'] <= 24]))
-        }
-        
-        return summary
+        try:
+            # Basic counts that always work
+            total_jobs = int(len(self.df))
+            total_companies = int(self.df['company_name'].nunique())
+            total_locations = int(self.df['location'].nunique())
+            
+            # Count remote jobs (case-insensitive, handle any data type)
+            try:
+                remote_count = int(len(self.df[self.df['work_type'].astype(str).str.lower() == 'remote']))
+            except:
+                remote_count = 0
+            
+            # Count recent jobs (convert to numeric first)
+            try:
+                posted_hours = pd.to_numeric(self.df['posted_hours_ago'], errors='coerce')
+                recent_count = int(posted_hours[posted_hours <= 24].count())
+            except:
+                recent_count = 0
+            
+            # Calculate average applications
+            try:
+                avg_apps = float(pd.to_numeric(self.df['no_of_application'], errors='coerce').mean())
+                if pd.isna(avg_apps):
+                    avg_apps = 0.0
+            except:
+                avg_apps = 0.0
+            
+            summary = {
+                'total_jobs': total_jobs,
+                'total_companies': total_companies,
+                'total_locations': total_locations,
+                'avg_applications': round(avg_apps, 2),
+                'remote_jobs': remote_count,
+                'recent_jobs_24h': recent_count
+            }
+            
+            print(f"✅ Dashboard Summary: {summary}")
+            return summary
+        except Exception as e:
+            print(f"❌ Error creating dashboard summary: {e}")
+            import traceback
+            traceback.print_exc()
+            # Return default values on error
+            return {
+                'total_jobs': 0,
+                'total_companies': 0,
+                'total_locations': 0,
+                'avg_applications': 0.0,
+                'remote_jobs': 0,
+                'recent_jobs_24h': 0
+            }
     
     def create_all_visualizations(self):
         """Generate all visualizations with error handling"""
